@@ -241,3 +241,129 @@ Variabel yang dapat terdampak oleh `setState()` adalah semua variabel yang dapat
 
 
 </details>
+
+
+
+<details>
+  <summary><strong>Tugas 8</strong></summary>
+
+## Tugas 8: Flutter Navigation, Layouts, Forms, and Input Elements
+
+### Penggunaan `const` di Flutter
+`const` di Flutter adalah keyword yang digunakan untuk membuat variabel atau objek yang nilainya konstan atau tidak dapat diubah. Penggunaan `const` dapat memberikan beberapa keuntungan:
+
+1. **Efisiensi Memori**: Variabel atau objek yang dideklarasikan dengan `const` akan disimpan di memori hanya sekali, sehingga dapat meningkatkan efisiensi penggunaan memori.
+2. **Performa yang Lebih Baik**: Kompiler dapat melakukan optimasi yang lebih baik pada kode yang menggunakan `const`, sehingga dapat meningkatkan performa aplikasi.
+3. **Keamanan**: Variabel atau objek yang dideklarasikan dengan `const` tidak dapat diubah, sehingga dapat membantu mencegah kesalahan yang disebabkan oleh perubahan nilai yang tidak disengaja.
+
+Sebaiknya menggunakan `const` jika nilai variabel atau objek tidak akan berubah selama aplikasi berjalan. Contohnya, pada deklarasi konstanta, definisi widget, atau nilai yang dihitung secara statis. Namun, jika nilai variabel atau objek dapat berubah selama aplikasi berjalan, sebaiknya tidak menggunakan `const`.
+
+### Penggunaan `Column` dan `Row` pada Flutter
+`Column` dan `Row` adalah dua layout widget dasar di Flutter yang digunakan untuk mengatur tata letak elemen-elemen child di dalam widget induk.
+
+**`Column`**:
+- Menyusun elemen child secara vertikal dari atas ke bawah.
+- Cocok untuk membuat tata letak vertikal, seperti membuat menu, daftar, atau form.
+- Contoh implementasi:
+```dart
+Column(
+  children: [
+    Text('Elemen 1'),
+    Text('Elemen 2'),
+    Text('Elemen 3'),
+  ],
+)
+```
+
+**`Row`**:
+- Menyusun elemen child secara horizontal dari kiri ke kanan.
+- Cocok untuk membuat tata letak horizontal, seperti membuat toolbar, navigasi, atau kontrol yang berdampingan.
+- Contoh implementasi:
+```dart
+Row(
+  children: [
+    Icon(Icons.add),
+    Text('Tambah'),
+    Icon(Icons.delete),
+  ],
+)
+```
+
+Perbedaan utama antara `Column` dan `Row` adalah arah penyusunan elemen child. `Column` berorientasi vertikal, sedangkan `Row` berorientasi horizontal. Penggunaan keduanya tergantung pada kebutuhan desain aplikasi yang ingin dicapai.
+
+### Elemen Input pada Halaman Form
+Pada halaman `ProductFormPage`, saya menggunakan tiga elemen input:
+1. `TextFormField` untuk input nama produk
+2. `TextFormField` untuk input jumlah
+3. `TextFormField` untuk input deskripsi
+
+Selain ketiga elemen input tersebut, Flutter juga menyediakan elemen input lainnya, seperti:
+- `Checkbox`: untuk input checkbox
+- `Radio`: untuk input radio button
+- `Slider`: untuk input slider
+- `Switch`: untuk input switch
+- `DropdownButton`: untuk input dropdown
+- `DateTimeField`: untuk input tanggal dan waktu
+
+Pemilihan elemen input yang digunakan bergantung pada jenis data yang ingin dimasukkan oleh pengguna dan kebutuhan desain aplikasi.
+
+### Pengaturan Tema Aplikasi
+Untuk mengatur tema (theme) aplikasi Flutter, saya menggunakan `ThemeData` di dalam `MaterialApp`. Saya menentukan warna primer, sekunder, dan warna latar belakang (background) yang konsisten di seluruh aplikasi.
+
+Pada contoh aplikasi `Zoldyck`, saya mengimplementasikan tema dengan kode berikut:
+```dart
+return MaterialApp(
+  title: 'Zoldyck',
+  theme: ThemeData(
+    colorScheme: ColorScheme.fromSeed(
+      seedColor: Colors.black,
+      primary: Colors.black,
+      secondary: Colors.white,
+      surface: Colors.white,
+    ),
+    useMaterial3: true,
+    appBarTheme: const AppBarTheme(
+      backgroundColor: Colors.black,
+      foregroundColor: Colors.white,
+      elevation: 0,
+    ),
+    textTheme: const TextTheme(
+      headlineLarge: TextStyle(
+        fontSize: 32,
+        fontWeight: FontWeight.bold,
+        letterSpacing: -1.0,
+      ),
+      titleLarge: TextStyle(
+        fontSize: 22,
+        fontWeight: FontWeight.w600,
+        letterSpacing: -0.5,
+      ),
+    ),
+  ),
+  home: MyHomePage(),
+);
+```
+
+### Navigasi pada Aplikasi dengan Banyak Halaman
+Untuk menangani navigasi pada aplikasi dengan banyak halaman, saya menggunakan `Navigator` di Flutter. Saya menggunakan `MaterialPageRoute` untuk berpindah dari satu halaman ke halaman lain.
+
+Contoh penggunaan `Navigator` untuk berpindah dari halaman utama ke halaman form:
+```dart
+// Di dalam ItemCard pada screens/menu.dart
+onTap: () {
+  // ...
+  if (item.name == "Tambah Produk") {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const ProductFormPage(),
+      ),
+    );
+  }
+  // ...
+}
+```
+
+Selain itu, saya juga menggunakan `Drawer` untuk menyediakan navigasi ke halaman utama dan halaman form. Dengan menggunakan `Drawer`, pengguna dapat dengan mudah berpindah antara halaman-halaman aplikasi.
+
+</details>

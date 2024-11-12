@@ -1,6 +1,5 @@
-// main.dart
 import 'package:flutter/material.dart';
-import 'menu.dart';
+import 'package:zoldyck_mobile/screens/menu.dart';
 
 void main() {
   runApp(const MyApp());
