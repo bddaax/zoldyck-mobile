@@ -1,15 +1,88 @@
 import 'package:flutter/material.dart';
+import 'package:zoldyck_mobile/screens/login.dart';
 import 'package:zoldyck_mobile/widgets/drawer.dart';
-import 'package:zoldyck_mobile/widgets/product_card.dart';
+import 'package:zoldyck_mobile/screens/list_productentry.dart';
+import 'package:zoldyck_mobile/screens/product_form.dart';  // Pastikan ini sesuai dengan lokasi file form produk Anda
+import 'package:pbp_django_auth/pbp_django_auth.dart';
+import 'package:provider/provider.dart';
+
+class ItemHomepage {
+  final String title;
+  final IconData icon;
+  final Color color;
+  final Function(BuildContext context)? onTap;
+
+  ItemHomepage(this.title, this.icon, this.color, {this.onTap});
+}
 
 class MyHomePage extends StatelessWidget {
-  final List<ItemHomepage> items = [
-    ItemHomepage("Lihat Daftar Produk", Icons.shopping_bag_outlined, Colors.black),
-    ItemHomepage("Tambah Produk", Icons.add_circle_outline, Colors.grey[900]!),
-    ItemHomepage("Logout", Icons.logout_outlined, Colors.red[900]!),
-  ];
+  late final List<ItemHomepage> items;
 
-  MyHomePage({super.key});
+  MyHomePage({super.key}) {
+    items = [
+      ItemHomepage(
+        "Lihat Daftar Produk",
+        Icons.shopping_bag_outlined,
+        Colors.black,
+        onTap: (context) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const ProductEntryPage()),
+          );
+        },
+      ),
+      ItemHomepage(
+        "Tambah Produk",
+        Icons.add_circle_outline,
+        Colors.grey[900]!,
+        onTap: (context) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const ProductFormPage()),  // Sesuaikan dengan nama halaman form Anda
+          );
+        },
+      ),
+      ItemHomepage(
+        "Logout",
+        Icons.logout_outlined,
+        Colors.red[900]!,
+        onTap: (context) async {
+          final request = context.read<CookieRequest>();
+          final response = await request.logout(
+              "http://127.0.0.1:8000/auth/logout/");  // Ganti dengan URL logout Django Anda
+          
+          if (response['status']) {
+            String message = response['message'];
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => const LoginPage()),  // Pastikan untuk import halaman login
+            );
+            ScaffoldMessenger.of(context)
+              ..hideCurrentSnackBar()
+              ..showSnackBar(
+                SnackBar(content: Text(message)),
+              );
+          } else {
+            showDialog(
+              context: context,
+              builder: (context) => AlertDialog(
+                title: const Text('Logout Gagal'),
+                content: Text(response['message']),
+                actions: [
+                  TextButton(
+                    child: const Text('OK'),
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                  ),
+                ],
+              ),
+            );
+          }
+        },
+      ),
+    ];
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -46,14 +119,34 @@ class MyHomePage extends StatelessWidget {
                     crossAxisSpacing: 16,
                     mainAxisSpacing: 16,
                     children: items.map((ItemHomepage item) {
-                      return ItemCard(item);
+                      return Card(
+                        color: item.color,
+                        child: InkWell(
+                          onTap: () => item.onTap?.call(context),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                item.icon,
+                                size: 30.0,
+                                color: Colors.white,
+                              ),
+                              const SizedBox(height: 10.0),
+                              Text(
+                                item.title,
+                                textAlign: TextAlign.center,
+                                style: const TextStyle(color: Colors.white),
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
                     }).toList(),
                   ),
                 ),
               ],
             ),
           ),
-          // Copyright footer
           Positioned(
             left: 0,
             right: 0,

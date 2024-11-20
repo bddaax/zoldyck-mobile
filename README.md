@@ -367,3 +367,171 @@ onTap: () {
 Selain itu, saya juga menggunakan `Drawer` untuk menyediakan navigasi ke halaman utama dan halaman form. Dengan menggunakan `Drawer`, pengguna dapat dengan mudah berpindah antara halaman-halaman aplikasi.
 
 </details>
+
+
+<details>
+  <summary><strong>Tugas 9</strong></summary>
+
+## Tugas 9: Integrasi Layanan Web Django dengan Aplikasi Flutter
+
+### Mengapa Kita Perlu Membuat Model untuk Pengambilan atau Pengiriman Data JSON?  
+**Mengapa perlu membuat model?**  
+Model diperlukan untuk menyusun representasi data secara terstruktur sehingga mempermudah manipulasi data dalam aplikasi. Dalam konteks pengambilan atau pengiriman data JSON, model membantu memetakan atribut-atribut JSON ke dalam objek Python atau Flutter, membuatnya lebih mudah untuk diproses. Model juga memastikan integritas data, memvalidasi tipe data, dan menyediakan kerangka untuk operasi seperti serialisasi atau deserialisasi.  
+
+**Apakah akan terjadi error jika tidak membuat model?**  
+Tidak selalu terjadi error secara langsung. Namun, tanpa model, pengelolaan data menjadi kurang terorganisir, meningkatkan risiko kesalahan dalam pengambilan atau pengiriman data. Misalnya, jika ada perubahan struktur JSON, aplikasi dapat gagal membaca atau memproses data karena tidak ada peta yang mengatur format data.
+
+### Fungsi Library `http`  
+Library `http` pada Flutter digunakan untuk mengirim permintaan HTTP (GET, POST, PUT, DELETE, dsb.) dan menerima respons dari server. Dalam konteks tugas ini, `http` digunakan untuk:  
+1. Mengambil data dari server Django dalam format JSON.  
+2. Mengirim data dari Flutter ke Django (misalnya, data formulir untuk login atau registrasi).  
+3. Mengatur header untuk keperluan autentikasi seperti token atau cookie.  
+
+### Fungsi dan Pentingnya `CookieRequest`  
+**Fungsi `CookieRequest`:**  
+`CookieRequest` adalah implementasi yang mempermudah pengelolaan cookie dalam aplikasi Flutter. Cookie digunakan untuk melacak status sesi pengguna, seperti informasi login. Fungsi utamanya adalah:  
+1. Menyimpan cookie saat pengguna login.  
+2. Menggunakan cookie tersebut untuk setiap permintaan berikutnya sehingga pengguna tetap terautentikasi.  
+3. Memastikan keamanan dengan hanya mengirimkan cookie ke domain tertentu.  
+
+**Mengapa instance `CookieRequest` perlu dibagikan ke semua komponen?**  
+Instance `CookieRequest` harus bersifat global (shared) agar semua komponen aplikasi dapat mengakses status sesi yang sama. Dengan cara ini:  
+1. Semua komponen bisa memanfaatkan autentikasi tanpa harus mengelola cookie sendiri.  
+2. Menghindari inkonsistensi data sesi antar-komponen.
+
+### Mekanisme Pengiriman Data dari Input hingga Tampil di Flutter  
+1. **Input di Flutter:** Pengguna memasukkan data ke form Flutter.  
+2. **Pengiriman ke Backend:** Flutter mengirim data melalui permintaan HTTP menggunakan library `http` atau `CookieRequest`.  
+3. **Pemrosesan di Django:** Django menerima data, memprosesnya (misalnya, menyimpan ke database atau memvalidasi data), dan mengembalikan respons dalam format JSON.  
+4. **Respons ke Flutter:** Flutter menerima JSON dari Django, memparse data menggunakan model Dart, lalu menampilkan data ke UI aplikasi.
+
+
+### Mekanisme Autentikasi (Login, Register, Logout)  
+1. **Login:**  
+   - Pengguna memasukkan email dan password di Flutter.  
+   - Flutter mengirim permintaan POST ke endpoint Django dengan data tersebut.  
+   - Django memvalidasi kredensial dengan mencocokkannya ke database. Jika valid, Django mengembalikan cookie sesi ke Flutter.  
+   - Flutter menyimpan cookie tersebut menggunakan `CookieRequest` untuk digunakan dalam permintaan berikutnya.  
+
+2. **Register:**  
+   - Pengguna mengisi data akun baru di Flutter.  
+   - Data dikirim ke Django melalui permintaan POST.  
+   - Django membuat akun baru di database dan memberikan respons sukses ke Flutter.  
+
+3. **Logout:**  
+   - Flutter mengirim permintaan ke endpoint logout Django.  
+   - Django menghapus cookie sesi di server.  
+   - Flutter juga menghapus cookie lokal sehingga pengguna keluar dari aplikasi.
+
+Dengan mekanisme ini, autentikasi di Flutter tetap aman dan konsisten dengan proses di Django.  
+
+### Langkah-langkah
+
+Untuk mengimplementasikan fitur checklist yang disebutkan, berikut adalah langkah-langkahnya secara sistematis, tanpa hanya sekadar mengikuti tutorial:
+
+---
+
+### **1. Mengimplementasikan fitur registrasi akun pada proyek tugas Flutter**
+**Langkah:**
+1. **Modifikasi Backend Django**  
+   - Tambahkan fungsi `register` pada `views.py` untuk menerima data pendaftaran dari Flutter.
+   - Buat endpoint pada `urls.py` di Django, misalnya `auth/register/`.
+
+2. **Setup Model dan Validasi di Django**  
+   - Pastikan model `User` sudah tersedia, atau buat model custom jika diperlukan.
+
+3. **Integrasi di Flutter**  
+   - Buat file baru `register.dart` di folder `screens`.
+   - Tambahkan form pendaftaran dengan validasi username, password, dan konfirmasi password.
+   - Gunakan `pbp_django_auth` untuk melakukan POST request ke endpoint Django untuk pendaftaran.
+
+4. **Test Akhir**  
+   - Jalankan aplikasi dan pastikan registrasi berhasil membuat user baru.
+
+---
+
+### **2. Membuat halaman login pada proyek tugas Flutter**
+**Langkah:**
+1. **Backend Django: Fungsi Login**  
+   - Pastikan fungsi login di Django sudah dibuat, dengan endpoint seperti `/auth/login/`.
+
+2. **Frontend Flutter: UI Login**  
+   - Buat file `login.dart` dengan UI berisi form username dan password.
+   - Gunakan library `pbp_django_auth` untuk mengatur session cookies.
+
+3. **Navigasi Post-login**  
+   - Setelah login berhasil, arahkan pengguna ke halaman utama aplikasi.
+
+---
+
+### **3. Mengintegrasikan sistem autentikasi Django dengan proyek Flutter**
+**Langkah:**
+1. **Setup Django CORS dan Middleware**  
+   - Instal dan konfigurasi `django-cors-headers`.
+   - Tambahkan setting seperti `CORS_ALLOW_ALL_ORIGINS` dan pengaturan cookies.
+
+2. **Gunakan `pbp_django_auth` di Flutter**  
+   - Setup `CookieRequest` pada `main.dart` dengan `Provider`.
+   - Gunakan `request.login()` untuk autentikasi.
+
+3. **Pengujian**  
+   - Cek apakah cookie session tersimpan setelah login, lalu pastikan validitasnya di Django.
+
+---
+
+### **4. Membuat model kustom sesuai dengan proyek aplikasi Django**
+**Langkah:**
+1. **Tentukan Struktur Data**  
+   - Tentukan atribut model yang relevan, misalnya `name`, `price`, dan `description`.
+
+2. **Definisikan Model Django**  
+   - Tambahkan model di `models.py` dengan atribut yang diperlukan.
+   - Migrasikan perubahan dengan `python manage.py makemigrations` dan `migrate`.
+
+3. **Integrasi JSON Endpoint**  
+   - Buat view untuk menampilkan data dalam format JSON.
+
+4. **Generate Model di Flutter**  
+   - Gunakan `Quicktype` untuk membuat model Dart dari data JSON.
+
+---
+
+### **5. Membuat halaman daftar item**
+**Langkah:**
+1. **Fetch Data dari Django**  
+   - Gunakan library HTTP di Flutter untuk mengambil data dari endpoint Django.
+
+2. **Buat UI Daftar**  
+   - Buat file `list_item.dart` dengan tampilan list menggunakan `ListView.builder`.
+
+3. **Tampilkan Data**  
+   - Panggil API endpoint dan tampilkan atribut `name`, `price`, dan `description`.
+
+---
+
+### **6. Membuat halaman detail item**
+**Langkah:**
+1. **Navigasi ke Halaman Detail**  
+   - Buat navigasi dari item di halaman daftar ke halaman detail dengan `Navigator.push`.
+
+2. **Tampilkan Detail Item**  
+   - Buat file `item_detail.dart` dan tampilkan semua atribut model.
+
+3. **Tombol Kembali**  
+   - Tambahkan tombol `Back` menggunakan widget `ElevatedButton`.
+
+---
+
+### **7. Filter item berdasarkan pengguna yang login**
+**Langkah:**
+1. **Backend Django**  
+   - Tambahkan filter di view Django untuk memisahkan data berdasarkan pengguna login.
+
+2. **Flutter Filtering**  
+   - Tambahkan parameter filter di request API.
+
+3. **Uji Filter**  
+   - Login dengan pengguna berbeda dan pastikan hanya data yang relevan yang ditampilkan.
+
+
+</details>
